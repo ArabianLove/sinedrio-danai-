@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sinedrio Danai</string>
+    <string name="senate_title">The Senate</string>
+
+    <!-- Labels -->
+    <string name="label_delegation">Owner Delegation</string>
+    <string name="label_task_type">Task Type</string>
+    <string name="label_senate_roster">Senate Roster</string>
+    <string name="label_session_results">Session Results</string>
+
+    <!-- Hints -->
+    <string name="hint_owner_name">Owner name</string>
+    <string name="hint_owner_token">Delegation token</string>
+    <string name="hint_code_input">Paste code or describe requirements…</string>
+
+    <!-- Chips -->
+    <string name="chip_debug">Debug</string>
+    <string name="chip_design">Design</string>
+    <string name="chip_build">Build</string>
+    <string name="chip_explain">Explain</string>
+
+    <!-- Buttons -->
+    <string name="button_convene">Convene the Senate</string>
+    <string name="button_view_senate">View Senate</string>
+
+    <!-- Misc -->
+    <string name="text_no_results">No session results yet. Convene the Senate from the main screen.</string>
+    <string name="cd_status_icon">Agent status icon</string>
+</resources>
