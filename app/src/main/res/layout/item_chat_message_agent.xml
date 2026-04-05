@@ -24,6 +24,7 @@
         android:layout_height="wrap_content"
         app:cardElevation="1dp"
         app:cardCornerRadius="8dp"
+        app:cardBackgroundColor="@color/sinedrio_surface_variant"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <LinearLayout

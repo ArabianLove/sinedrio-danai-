@@ -50,4 +50,20 @@
     <!-- Menu -->
     <string name="menu_api_settings">API Settings…</string>
     <string name="menu_use_mock">Use Offline Mock</string>
+    <string name="menu_server_settings">Session Server…</string>
+    <string name="menu_persona_mode">Persona Assignment…</string>
+
+    <!-- Server settings -->
+    <string name="title_server_settings">Session Server</string>
+    <string name="hint_server_url">Server URL (e.g. https://my-server.com/api/sessions)</string>
+    <string name="hint_server_auth">Auth token (optional)</string>
+    <string name="msg_server_configured">Remote session server configured ✓</string>
+    <string name="msg_using_local">Using local session storage</string>
+
+    <!-- Persona negotiation -->
+    <string name="title_persona_mode">Persona Assignment Mode</string>
+    <string name="persona_mode_default">Default (fixed roles)</string>
+    <string name="persona_mode_shuffle">Shuffle (random each session)</string>
+    <string name="persona_mode_negotiate">Negotiate (moderator decides)</string>
+    <string name="msg_persona_mode">Persona mode: %1$s</string>
 </resources>

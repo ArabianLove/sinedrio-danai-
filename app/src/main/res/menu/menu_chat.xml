@@ -12,4 +12,14 @@
         android:title="@string/menu_use_mock"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_server_settings"
+        android:title="@string/menu_server_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_persona_mode"
+        android:title="@string/menu_persona_mode"
+        app:showAsAction="never" />
+
 </menu>
