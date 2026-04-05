@@ -6,6 +6,7 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import com.sinedrio.danai.R
 import com.sinedrio.danai.databinding.ActivityMainBinding
 import com.sinedrio.danai.senate.SenateTask
 
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         binding.buttonViewSenate.setOnClickListener {
             startActivity(Intent(this, SenateActivity::class.java))
         }
+        binding.buttonOpenChat.setOnClickListener { openSinedrioChat() }
     }
 
     private fun setupTaskTypeChips() {
@@ -62,6 +64,22 @@ class MainActivity : AppCompatActivity() {
             binding.chipExplain.isChecked -> SenateTask.TaskType.EXPLAIN
             else -> SenateTask.TaskType.DEBUG
         }
+    }
+
+    private fun openSinedrioChat() {
+        val ownerName = binding.editOwnerName.text?.toString()?.trim() ?: ""
+        val ownerToken = binding.editOwnerToken.text?.toString()?.trim()
+
+        if (ownerToken.isNullOrBlank()) {
+            Snackbar.make(binding.root, getString(R.string.error_token_required), Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        val intent = Intent(this, ChatActivity::class.java).apply {
+            putExtra(ChatActivity.EXTRA_OWNER_NAME, ownerName.ifBlank { "Moderatore" })
+            putExtra(ChatActivity.EXTRA_OWNER_TOKEN, ownerToken)
+        }
+        startActivity(intent)
     }
 
     private fun observeViewModel() {

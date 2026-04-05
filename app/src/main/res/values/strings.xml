@@ -27,4 +27,27 @@
     <!-- Misc -->
     <string name="text_no_results">No session results yet. Convene the Senate from the main screen.</string>
     <string name="cd_status_icon">Agent status icon</string>
+
+    <!-- Sinedrio Chat -->
+    <string name="button_open_chat">Open Sinedrio Chat</string>
+    <string name="title_sinedrio_chat">Sinedrio</string>
+    <string name="hint_chat_topic">Topic for discussion…</string>
+    <string name="hint_message">Write a message…</string>
+    <string name="button_send">Send</string>
+    <string name="button_auto">Auto</string>
+    <string name="label_start_chat">Start Sinedrio Chat</string>
+    <string name="error_token_required">Owner token required to open Sinedrio chat.</string>
+
+    <!-- API Settings -->
+    <string name="title_api_settings">API Settings</string>
+    <string name="hint_api_key">API Key (leave blank for mock)</string>
+    <string name="hint_base_url">Base URL (e.g. https://api.openai.com/v1)</string>
+    <string name="hint_model">Model (e.g. gpt-4o-mini)</string>
+    <string name="action_apply">Apply</string>
+    <string name="msg_api_configured">Real API configured ✓</string>
+    <string name="msg_using_mock">Using offline mock responses</string>
+
+    <!-- Menu -->
+    <string name="menu_api_settings">API Settings…</string>
+    <string name="menu_use_mock">Use Offline Mock</string>
 </resources>
