@@ -27,6 +27,12 @@
             android:label="@string/senate_title"
             android:parentActivityName=".ui.MainActivity" />
 
+        <activity
+            android:name=".ui.ChatActivity"
+            android:label="@string/title_sinedrio_chat"
+            android:parentActivityName=".ui.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>
