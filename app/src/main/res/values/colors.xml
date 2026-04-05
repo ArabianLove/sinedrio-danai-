@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Solemn / aulic palette — dark ceremonial aesthetic -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -7,4 +8,28 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Dark background tones -->
+    <color name="sinedrio_background">#FF0D0D1A</color>
+    <color name="sinedrio_surface">#FF1A1A2E</color>
+    <color name="sinedrio_surface_variant">#FF222240</color>
+
+    <!-- Gold / ceremonial accents -->
+    <color name="sinedrio_gold">#FFD4AF37</color>
+    <color name="sinedrio_gold_light">#FFE8D48B</color>
+    <color name="sinedrio_gold_dark">#FF8B7524</color>
+
+    <!-- Deep purple accents for secondary actions -->
+    <color name="sinedrio_purple">#FF4A1A6B</color>
+    <color name="sinedrio_purple_light">#FF7B52AB</color>
+
+    <!-- Text on dark backgrounds -->
+    <color name="sinedrio_text_primary">#FFF0EAD6</color>
+    <color name="sinedrio_text_secondary">#CCF0EAD6</color>
+
+    <!-- Agent accent colours (deep tones for dark background) -->
+    <color name="sinedrio_agent_detective">#FF3F51B5</color>
+    <color name="sinedrio_agent_visionary">#FF7B1FA2</color>
+    <color name="sinedrio_agent_engineer">#FF2E7D32</color>
+    <color name="sinedrio_agent_sage">#FFE65100</color>
 </resources>

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.sinedrio.danai.R
 import com.sinedrio.danai.databinding.ActivityChatBinding
+import com.sinedrio.danai.senate.chat.PersonaNegotiator
 
 /**
  * The Sinedrio Chat Room.
@@ -83,6 +84,14 @@ class ChatActivity : AppCompatActivity() {
             R.id.action_use_mock -> {
                 viewModel.useMockApi()
                 Snackbar.make(binding.root, getString(R.string.msg_using_mock), Snackbar.LENGTH_SHORT).show()
+                true
+            }
+            R.id.action_server_settings -> {
+                showServerSettingsDialog()
+                true
+            }
+            R.id.action_persona_mode -> {
+                showPersonaModeDialog()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -165,6 +174,57 @@ class ChatActivity : AppCompatActivity() {
                 Snackbar.make(binding.root, getString(R.string.msg_api_configured), Snackbar.LENGTH_SHORT).show()
             }
             .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showServerSettingsDialog() {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, 0)
+        }
+
+        val editServerUrl = EditText(this).apply { hint = getString(R.string.hint_server_url) }
+        val editAuthToken = EditText(this).apply { hint = getString(R.string.hint_server_auth) }
+
+        layout.addView(editServerUrl)
+        layout.addView(editAuthToken)
+
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.title_server_settings))
+            .setView(layout)
+            .setPositiveButton(getString(R.string.action_apply)) { _, _ ->
+                val url = editServerUrl.text.toString().trim()
+                if (url.isNotBlank()) {
+                    viewModel.configureRemoteStorage(url, editAuthToken.text.toString().trim())
+                    Snackbar.make(binding.root, getString(R.string.msg_server_configured), Snackbar.LENGTH_SHORT).show()
+                } else {
+                    viewModel.useLocalStorage()
+                    Snackbar.make(binding.root, getString(R.string.msg_using_local), Snackbar.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showPersonaModeDialog() {
+        val modes = arrayOf(
+            getString(R.string.persona_mode_default),
+            getString(R.string.persona_mode_shuffle),
+            getString(R.string.persona_mode_negotiate)
+        )
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.title_persona_mode))
+            .setItems(modes) { _, which ->
+                val mode = when (which) {
+                    0 -> PersonaNegotiator.Mode.DEFAULT
+                    1 -> PersonaNegotiator.Mode.SHUFFLE
+                    2 -> PersonaNegotiator.Mode.NEGOTIATE
+                    else -> PersonaNegotiator.Mode.DEFAULT
+                }
+                viewModel.setNegotiationMode(mode)
+                Snackbar.make(binding.root, "${getString(R.string.msg_persona_mode)} ${modes[which]}", Snackbar.LENGTH_SHORT).show()
+            }
             .show()
     }
 

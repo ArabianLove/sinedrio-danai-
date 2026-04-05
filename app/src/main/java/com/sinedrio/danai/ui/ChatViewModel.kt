@@ -11,7 +11,12 @@ import com.sinedrio.danai.senate.chat.ChatSenateAgent
 import com.sinedrio.danai.senate.chat.ChatSession
 import com.sinedrio.danai.senate.chat.MockApiChatClient
 import com.sinedrio.danai.senate.chat.OpenAiChatClient
+import com.sinedrio.danai.senate.chat.PersonaNegotiator
 import com.sinedrio.danai.senate.chat.SenateChat
+import com.sinedrio.danai.senate.chat.persistence.InMemorySessionRepository
+import com.sinedrio.danai.senate.chat.persistence.RemoteSessionRepository
+import com.sinedrio.danai.senate.chat.persistence.SessionRepository
+import com.sinedrio.danai.senate.chat.persistence.SessionSummary
 import kotlinx.coroutines.launch
 
 /**
@@ -21,12 +26,26 @@ import kotlinx.coroutines.launch
  * current [ChatSession], processing state, and error messages.  The [apiClient]
  * defaults to [MockApiChatClient] and can be swapped at runtime when the user
  * provides an API key.
+ *
+ * ## Session persistence
+ *
+ * A [SessionRepository] is always active (defaults to [InMemorySessionRepository]).
+ * When the user configures a remote server URL, sessions are stored on the external
+ * server and can be resumed across app restarts.
+ *
+ * ## Dynamic persona negotiation
+ *
+ * A [PersonaNegotiator] allows the moderator (or the models themselves) to decide
+ * which persona each agent seat embodies at the start of every session.
  */
 class ChatViewModel : ViewModel() {
 
-    private var senateChat = SenateChat()
+    private var currentApiClient: ApiChatClient = MockApiChatClient()
+    private var sessionRepo: SessionRepository = InMemorySessionRepository()
+    private var personaNegotiator = PersonaNegotiator(currentApiClient)
+    private var senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
 
-    /** The four agents seated in this Sinedrio. */
+    /** The agents seated in this Sinedrio (may change after persona negotiation). */
     val agents: List<ChatSenateAgent> get() = senateChat.agents
 
     private val _session = MutableLiveData<ChatSession?>()
@@ -41,6 +60,9 @@ class ChatViewModel : ViewModel() {
     private val _errorMessage = MutableLiveData<String?>(null)
     val errorMessage: LiveData<String?> = _errorMessage
 
+    private val _savedSessions = MutableLiveData<List<SessionSummary>>(emptyList())
+    val savedSessions: LiveData<List<SessionSummary>> = _savedSessions
+
     // ── API configuration ──────────────────────────────────────────────────────
 
     /**
@@ -50,17 +72,47 @@ class ChatViewModel : ViewModel() {
      */
     fun configureRealApi(apiKey: String, baseUrl: String, model: String) {
         if (apiKey.isBlank()) return
-        val client: ApiChatClient = OpenAiChatClient(
+        currentApiClient = OpenAiChatClient(
             apiKey = apiKey,
             baseUrl = baseUrl.ifBlank { "https://api.openai.com/v1" },
             model = model.ifBlank { "gpt-4o-mini" }
         )
-        senateChat = SenateChat(client)
+        personaNegotiator = PersonaNegotiator(currentApiClient, personaNegotiator.mode)
+        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
     }
 
     /** Revert to the offline [MockApiChatClient]. */
     fun useMockApi() {
-        senateChat = SenateChat(MockApiChatClient())
+        currentApiClient = MockApiChatClient()
+        personaNegotiator = PersonaNegotiator(currentApiClient, personaNegotiator.mode)
+        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
+    }
+
+    // ── Session persistence configuration ──────────────────────────────────────
+
+    /**
+     * Configure a remote server for persistent session storage.
+     *
+     * @param serverUrl  Base URL of the session API (e.g. `https://my-server.com/api/sessions`).
+     * @param authToken  Optional bearer token for authentication.
+     */
+    fun configureRemoteStorage(serverUrl: String, authToken: String = "") {
+        if (serverUrl.isBlank()) return
+        sessionRepo = RemoteSessionRepository(baseUrl = serverUrl, authToken = authToken)
+        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
+    }
+
+    /** Revert to in-memory session storage. */
+    fun useLocalStorage() {
+        sessionRepo = InMemorySessionRepository()
+        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
+    }
+
+    // ── Persona negotiation configuration ──────────────────────────────────────
+
+    /** Set the persona negotiation mode for future sessions. */
+    fun setNegotiationMode(mode: PersonaNegotiator.Mode) {
+        personaNegotiator.mode = mode
     }
 
     // ── Session lifecycle ──────────────────────────────────────────────────────
@@ -68,6 +120,7 @@ class ChatViewModel : ViewModel() {
     /**
      * Open a new Sinedrio session on [topic] for [ownerName].
      *
+     * If persona negotiation is enabled, agents are reassigned dynamically.
      * The first agent round is launched automatically so that agents greet the
      * room with their initial perspectives on the topic.
      */
@@ -82,19 +135,64 @@ class ChatViewModel : ViewModel() {
         }
 
         val delegate = SenateDelegate(ownerName = ownerName.ifBlank { "Moderatore" }, token = ownerToken)
-        val newSession: ChatSession
-        try {
-            newSession = senateChat.newSession(topic = topic, delegate = delegate)
-        } catch (e: IllegalStateException) {
-            _errorMessage.value = e.message
-            return
+
+        viewModelScope.launch {
+            _isProcessing.value = true
+            _errorMessage.value = null
+            try {
+                val newSession = if (personaNegotiator.mode != PersonaNegotiator.Mode.DEFAULT) {
+                    senateChat.newSessionWithNegotiation(topic = topic, delegate = delegate)
+                } else {
+                    senateChat.newSession(topic = topic, delegate = delegate)
+                }
+
+                _session.value = newSession
+                _messages.value = emptyList()
+
+                // Launch the first agent round so the conversation starts immediately
+                val updated = senateChat.agentRound(newSession)
+                pushSession(updated)
+            } catch (e: IllegalStateException) {
+                _errorMessage.value = e.message
+            } catch (e: Exception) {
+                _errorMessage.value = "Session error: ${e.message}"
+            } finally {
+                _isProcessing.value = false
+            }
         }
+    }
 
-        _session.value = newSession
-        _messages.value = emptyList()
+    /**
+     * Resume a previously saved session by [sessionId].
+     */
+    fun resumeSession(sessionId: String) {
+        viewModelScope.launch {
+            _isProcessing.value = true
+            _errorMessage.value = null
+            try {
+                val loaded = senateChat.loadSession(sessionId)
+                if (loaded != null) {
+                    pushSession(loaded)
+                } else {
+                    _errorMessage.value = "Session not found."
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to load session: ${e.message}"
+            } finally {
+                _isProcessing.value = false
+            }
+        }
+    }
 
-        // Launch the first agent round so the conversation starts immediately
-        runAgentRound(newSession)
+    /** Refresh the list of saved sessions. */
+    fun loadSavedSessions() {
+        viewModelScope.launch {
+            try {
+                _savedSessions.value = sessionRepo.listAll()
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to list sessions: ${e.message}"
+            }
+        }
     }
 
     // ── Human moderator ────────────────────────────────────────────────────────

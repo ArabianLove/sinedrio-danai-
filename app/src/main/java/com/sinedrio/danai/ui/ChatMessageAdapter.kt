@@ -32,13 +32,13 @@ class ChatMessageAdapter :
 
         private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-        /** Colour palette per agent id. */
+        /** Colour palette per agent id — lighter tones for readability on dark background. */
         private val AGENT_COLORS = mapOf(
-            "detective" to Color.parseColor("#1A237E"),   // deep indigo
-            "visionary" to Color.parseColor("#4A148C"),   // deep purple
-            "engineer" to Color.parseColor("#1B5E20"),    // deep green
-            "sage" to Color.parseColor("#E65100"),        // deep amber
-            "auto_moderator" to Color.parseColor("#37474F") // blue-grey
+            "detective" to Color.parseColor("#7986CB"),   // indigo 300
+            "visionary" to Color.parseColor("#BA68C8"),   // purple 300
+            "engineer" to Color.parseColor("#66BB6A"),    // green 400
+            "sage" to Color.parseColor("#FFB74D"),        // orange 300
+            "auto_moderator" to Color.parseColor("#D4AF37") // gold
         )
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ChatMessage>() {
