@@ -77,15 +77,13 @@ class ChatViewModel : ViewModel() {
             baseUrl = baseUrl.ifBlank { "https://api.openai.com/v1" },
             model = model.ifBlank { "gpt-4o-mini" }
         )
-        personaNegotiator = PersonaNegotiator(currentApiClient, personaNegotiator.mode)
-        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
+        rebuildSenateChat()
     }
 
     /** Revert to the offline [MockApiChatClient]. */
     fun useMockApi() {
         currentApiClient = MockApiChatClient()
-        personaNegotiator = PersonaNegotiator(currentApiClient, personaNegotiator.mode)
-        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
+        rebuildSenateChat()
     }
 
     // ── Session persistence configuration ──────────────────────────────────────
@@ -99,13 +97,13 @@ class ChatViewModel : ViewModel() {
     fun configureRemoteStorage(serverUrl: String, authToken: String = "") {
         if (serverUrl.isBlank()) return
         sessionRepo = RemoteSessionRepository(baseUrl = serverUrl, authToken = authToken)
-        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
+        rebuildSenateChat()
     }
 
     /** Revert to in-memory session storage. */
     fun useLocalStorage() {
         sessionRepo = InMemorySessionRepository()
-        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
+        rebuildSenateChat()
     }
 
     // ── Persona negotiation configuration ──────────────────────────────────────
@@ -113,6 +111,14 @@ class ChatViewModel : ViewModel() {
     /** Set the persona negotiation mode for future sessions. */
     fun setNegotiationMode(mode: PersonaNegotiator.Mode) {
         personaNegotiator.mode = mode
+    }
+
+    // ── Internal helpers ───────────────────────────────────────────────────────
+
+    /** Rebuild the [SenateChat] after any configuration change. */
+    private fun rebuildSenateChat() {
+        personaNegotiator = PersonaNegotiator(currentApiClient, personaNegotiator.mode)
+        senateChat = SenateChat(currentApiClient, sessionRepo, personaNegotiator)
     }
 
     // ── Session lifecycle ──────────────────────────────────────────────────────

@@ -65,5 +65,5 @@
     <string name="persona_mode_default">Default (fixed roles)</string>
     <string name="persona_mode_shuffle">Shuffle (random each session)</string>
     <string name="persona_mode_negotiate">Negotiate (moderator decides)</string>
-    <string name="msg_persona_mode">Persona mode: </string>
+    <string name="msg_persona_mode">Persona mode: %1$s</string>
 </resources>

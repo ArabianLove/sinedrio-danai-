@@ -223,7 +223,7 @@ class ChatActivity : AppCompatActivity() {
                     else -> PersonaNegotiator.Mode.DEFAULT
                 }
                 viewModel.setNegotiationMode(mode)
-                Snackbar.make(binding.root, "${getString(R.string.msg_persona_mode)} ${modes[which]}", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, getString(R.string.msg_persona_mode, modes[which]), Snackbar.LENGTH_SHORT).show()
             }
             .show()
     }
