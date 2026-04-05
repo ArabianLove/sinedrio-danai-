@@ -64,6 +64,17 @@ class ChatMessageAdapter :
             VIEW_TYPE_HUMAN -> HumanViewHolder(
                 ItemChatMessageHumanBinding.inflate(inflater, parent, false)
             )
+            VIEW_TYPE_MODERATOR -> {
+                val binding = ItemChatMessageAgentBinding.inflate(inflater, parent, false)
+                // Apply centred margins once at creation time for the auto-moderator style
+                val density = parent.context.resources.displayMetrics.density
+                val margin48 = (48 * density).toInt()
+                val params = binding.root.layoutParams as? ViewGroup.MarginLayoutParams
+                params?.marginStart = margin48
+                params?.marginEnd = margin48
+                binding.root.layoutParams = params
+                AgentViewHolder(binding)
+            }
             else -> AgentViewHolder(
                 ItemChatMessageAgentBinding.inflate(inflater, parent, false)
             )
@@ -99,18 +110,13 @@ class ChatMessageAdapter :
             binding.viewAccent.setBackgroundColor(color)
             binding.textSenderName.text = msg.senderName
             binding.textSenderName.setTextColor(color)
-            binding.textPersona.text = msg.senderPersona
             binding.textContent.text = msg.content
             binding.textTime.text = TIME_FORMAT.format(Date(msg.timestamp))
 
             if (msg.isAutoModerator) {
                 binding.textPersona.visibility = View.GONE
-                // Centre auto-moderator cards
-                val params = binding.root.layoutParams as? ViewGroup.MarginLayoutParams
-                params?.marginStart = 48
-                params?.marginEnd = 48
-                binding.root.layoutParams = params
             } else {
+                binding.textPersona.text = msg.senderPersona
                 binding.textPersona.visibility = View.VISIBLE
             }
         }

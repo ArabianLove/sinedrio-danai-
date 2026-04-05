@@ -155,7 +155,7 @@ class MockApiChatClient : ApiChatClient {
                 "Start with interfaces, write the tests against the interface, then fill in the implementation. Dependency inversion from day one saves enormous refactoring time."
             )
             Topic.IMPLEMENTATION -> listOf(
-                "Coroutines for async, Room for local persistence, Retrofit for network. That trio covers 90 % of Android use cases with minimal boilerplate.",
+                "Coroutines for async, Room for local persistence, Retrofit for network. That trio covers 90% of Android use cases with minimal boilerplate.",
                 "Use sealed classes for state: `Loading`, `Success(data)`, `Error(message)`. The `when` expression then enforces exhaustive handling at compile time.",
                 "Extract the business logic into pure functions first — they're trivial to test. Push side effects (IO, UI) to the edges where they belong."
             )

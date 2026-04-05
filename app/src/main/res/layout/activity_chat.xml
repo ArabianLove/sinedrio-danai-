@@ -56,6 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/hint_message"
+            android:contentDescription="@string/hint_message"
             android:inputType="textMultiLine|textCapSentences"
             android:maxLines="4"
             android:minHeight="48dp"

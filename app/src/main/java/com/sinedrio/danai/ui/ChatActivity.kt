@@ -37,7 +37,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
     private val viewModel: ChatViewModel by viewModels()
     private val adapter = ChatMessageAdapter()
-    private val layoutManager = LinearLayoutManager(null).apply { stackFromEnd = true }
+    private lateinit var layoutManager: LinearLayoutManager
 
     private var ownerName = "Moderatore"
     private var ownerToken = "default"
@@ -48,6 +48,8 @@ class ChatActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        layoutManager = LinearLayoutManager(this).apply { stackFromEnd = true }
 
         ownerName = intent.getStringExtra(EXTRA_OWNER_NAME) ?: "Moderatore"
         ownerToken = intent.getStringExtra(EXTRA_OWNER_TOKEN) ?: "default"
